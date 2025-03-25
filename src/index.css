@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
 
 
@@ -573,7 +572,7 @@ body::before {
 .results-table td {
   padding: 1.125rem 1.25rem;
   border-bottom: 1px solid var(--border-light);
-  color: var (--text);
+  color: var(--text); /* Fixed: removed space after var */
   transition: var(--transition-fast);
 }
 
@@ -1196,5 +1195,145 @@ body::before {
   20%, 21.999%, 63%, 63.999%, 98%, 99.998%, 100% {
     opacity: 0.4;
     text-shadow: none;
+  }
+}
+
+/* Add these media queries at the end of your CSS file */
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .app {
+    padding: 1.5rem 1rem;
+  }
+  
+  .header h1 {
+    font-size: 2.25rem;
+  }
+  
+  .header h1::before {
+    font-size: 5rem;
+  }
+  
+  .header p {
+    font-size: 1rem;
+  }
+  
+  .query-section, 
+  .results-section {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+  }
+  
+  .query-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .query-selector {
+    width: 100%;
+  }
+  
+  .theme-toggle {
+    position: absolute; /* Changed from fixed to absolute */
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .history-container {
+    position: static; /* Make static so panel can be full width */
+  }
+  
+  .history-panel {
+    position: fixed; /* Changed to fixed */
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 80vh;
+    margin: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+  }
+  
+  .results-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .button-group {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem; /* Smaller gap between stacked buttons */
+  }
+  
+  .run-button, 
+  .reset-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .toast {
+    min-width: auto;
+    max-width: 95vw;
+    width: 95vw;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    right: auto;
+  }
+  
+  .toast-container {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+    pointer-events: none; /* Allow clicks to pass through container */
+  }
+  
+  .toast {
+    pointer-events: auto; /* Restore pointer events on actual toast */
+  }
+  
+  .query-editor {
+    min-height: 150px;
+    font-size: 0.85rem;
+  }
+  
+  .results-table {
+    table-layout: auto;
+    white-space: nowrap;
+    font-size: 0.85rem;
+  }
+  
+  .results-table th,
+  .results-table td {
+    padding: 0.875rem 1rem;
+  }
+  
+  .query-section, 
+  .results-section {
+    border-width: 1px;
+    padding: 1.25rem;
   }
 }
