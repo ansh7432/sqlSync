@@ -1,51 +1,48 @@
-import * as React from 'react';
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { Database, Timer, Filter, Clock, X } from 'lucide-react';
-import { sampleQueries } from './data/queries';
+import { useRef, useEffect } from 'react';
+import { ThemeToggle } from './components/common/ThemeToggle';
+import { Header } from './components/layout/Header';
+import { QuerySelector } from './components/query/QuerySelector';
+import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { Filter, Timer, Clock, X } from 'lucide-react';
+import { useQueryExecution } from './hooks/useQueryExecution';
+import { useQueryHistory } from './hooks/useQueryHistory';
+import { useTableFilters } from './hooks/useTableFilters';
 import { formatNumber } from './utils/format';
-
-const ITEMS_PER_PAGE = 10;
-
-// Define interface for history items
-interface HistoryItem {
-  id: string;
-  query: string;
-  timestamp: number;
-  name?: string;
-}
+import { sampleQueries } from './data/queries';
 
 function App() {
-  const [selectedQuery, setSelectedQuery] = useState(sampleQueries[0].id);
-  const [queryText, setQueryText] = useState(sampleQueries[0].query);
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<null | typeof sampleQueries[0]['results']>(null);
-  const [executionTime, setExecutionTime] = useState(0);
-  const [visibleRows, setVisibleRows] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [filters, setFilters] = useState<Record<string, string>>({});
-  const [filteredResults, setFilteredResults] = useState<any[] | null>(null);
-  const [queryHistory, setQueryHistory] = useState<HistoryItem[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
+  const { 
+    selectedQuery, 
+    queryText, 
+    setQueryText, 
+    handleQueryChange, 
+    executeQuery, 
+    isLoading, 
+    results, 
+    executionTime 
+  } = useQueryExecution();
+  
+  const {
+    queryHistory,
+    showHistory,
+    setShowHistory,
+    addToHistory,
+    removeFromHistory,
+    clearHistory
+  } = useQueryHistory();
+  
+  const {
+    filters,
+    filteredResults,
+    visibleRows,
+    loadingMore,
+    handleFilterChange,
+    loadMoreRows,
+    resetFilters
+  } = useTableFilters(results);
+  
   const observerTarget = useRef(null);
   const historyRef = useRef<HTMLDivElement>(null);
-
-  // Load query history from localStorage on initial load
-  useEffect(() => {
-    const savedHistory = localStorage.getItem('queryHistory');
-    if (savedHistory) {
-      try {
-        setQueryHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error('Failed to parse query history', e);
-      }
-    }
-  }, []);
-
-  // Save query history to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
-  }, [queryHistory]);
 
   // Close history panel when clicking outside
   useEffect(() => {
@@ -59,50 +56,9 @@ function App() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [historyRef]);
+  }, [historyRef, setShowHistory]);
 
-  // Apply filters to results
-  useEffect(() => {
-    if (!results) return;
-    
-    // If no filters are applied, use original results
-    if (Object.keys(filters).length === 0 || Object.values(filters).every(v => v === '')) {
-      setFilteredResults(results.rows);
-      setVisibleRows(results.rows.slice(0, ITEMS_PER_PAGE));
-      setPage(2);
-      return;
-    }
-
-    // Apply all active filters
-    const filtered = results.rows.filter(row => {
-      return Object.entries(filters).every(([column, filterValue]) => {
-        if (!filterValue) return true;
-        
-        const cellValue = String(row[column]).toLowerCase();
-        return cellValue.includes(filterValue.toLowerCase());
-      });
-    });
-
-    setFilteredResults(filtered);
-    setVisibleRows(filtered.slice(0, ITEMS_PER_PAGE));
-    setPage(2);
-  }, [filters, results]);
-
-  const loadMoreRows = useCallback(async () => {
-    if (loadingMore || !filteredResults) return;
-
-    setLoadingMore(true);
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    const newRows = filteredResults.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-    
-    setVisibleRows(prev => [...prev, ...newRows]);
-    setPage(prev => prev + 1);
-    setLoadingMore(false);
-  }, [page, filteredResults, loadingMore]);
-
+  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
@@ -120,111 +76,47 @@ function App() {
     return () => observer.disconnect();
   }, [loadMoreRows, filteredResults?.length, visibleRows.length]);
 
-  const handleQueryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const query = sampleQueries.find(q => q.id === event.target.value);
-    if (query) {
-      setSelectedQuery(query.id);
-      setQueryText(query.query);
-      setResults(null);
-      setVisibleRows([]);
-      setFilters({});
-      setFilteredResults(null);
-      setPage(1);
-      setExecutionTime(0);
-    }
-  };
-
-  const handleQueryExecution = useCallback(async () => {
-    if (!queryText.trim()) return;
+  // Handle query execution and update history
+  const handleExecuteQuery = async () => {
+    await executeQuery();
     
-    setIsLoading(true);
-    setFilters({});
-    const startTime = performance.now();
-
     // Add to history
-    const historyItem: HistoryItem = {
-      id: Date.now().toString(),
+    addToHistory({
       query: queryText,
       timestamp: Date.now(),
       name: sampleQueries.find(q => q.id === selectedQuery)?.name
-    };
+    });
     
-    // Only add to history if it's a new query
-    if (!queryHistory.some(item => item.query === queryText)) {
-      setQueryHistory(prev => [historyItem, ...prev].slice(0, 50)); // Keep only the 50 most recent queries
-    }
-
-    // Simulate query execution
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const query = sampleQueries.find(q => q.id === selectedQuery);
-    if (query) {
-      setResults(query.results);
-      setFilteredResults(query.results.rows);
-      setVisibleRows(query.results.rows.slice(0, ITEMS_PER_PAGE));
-      setPage(2);
-      setExecutionTime(performance.now() - startTime);
-    }
-
-    setIsLoading(false);
-  }, [selectedQuery, queryText, queryHistory]);
-
-  const handleFilterChange = (column: string, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [column]: value
-    }));
+    // Reset filters
+    resetFilters();
   };
 
-  const loadHistoryItem = (historyItem: HistoryItem) => {
-    setQueryText(historyItem.query);
+  const loadHistoryItem = (query: string) => {
+    setQueryText(query);
     setShowHistory(false);
 
     // Find if the query matches a predefined sample query
-    const matchingSampleQuery = sampleQueries.find(q => q.query === historyItem.query);
+    const matchingSampleQuery = sampleQueries.find(q => q.query === query);
     if (matchingSampleQuery) {
-      setSelectedQuery(matchingSampleQuery.id);
+      handleQueryChange(matchingSampleQuery.id);
     } else {
       // If no matching sample query, use a custom ID
-      setSelectedQuery('custom');
-    }
-  };
-
-  const removeHistoryItem = (e: React.MouseEvent, itemId: string) => {
-    e.stopPropagation();
-    setQueryHistory(prev => prev.filter(item => item.id !== itemId));
-  };
-
-  const clearHistory = () => {
-    if (window.confirm('Are you sure you want to clear all query history?')) {
-      setQueryHistory([]);
-      setShowHistory(false);
+      handleQueryChange('custom');
     }
   };
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>
-          <Database className="icon" /> SQL Query Editor
-        </h1>
-        <p>Run SQL queries and view results instantly</p>
-      </header>
+      <ThemeToggle />
+      <Header />
 
       <main>
         <section className="query-section">
           <div className="query-header">
-            <select 
-              className="query-selector"
-              value={selectedQuery}
+            <QuerySelector
+              selectedQuery={selectedQuery}
               onChange={handleQueryChange}
-            >
-              {sampleQueries.map(query => (
-                <option key={query.id} value={query.id}>
-                  {query.name}
-                </option>
-              ))}
-            </select>
+            />
             
             <div className="history-container">
               <button 
@@ -250,7 +142,7 @@ function App() {
                   ) : (
                     <ul className="history-list">
                       {queryHistory.map(item => (
-                        <li key={item.id} onClick={() => loadHistoryItem(item)}>
+                        <li key={item.id} onClick={() => loadHistoryItem(item.query)}>
                           <div className="history-item">
                             <div className="history-item-name">
                               {item.name || 'Custom Query'}
@@ -264,7 +156,10 @@ function App() {
                             </div>
                             <button 
                               className="remove-history-item"
-                              onClick={(e) => removeHistoryItem(e, item.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeFromHistory(item.id);
+                              }}
                               title="Remove from history"
                             >
                               <X size={14} />
@@ -288,14 +183,10 @@ function App() {
 
           <button 
             className="run-button"
-            onClick={handleQueryExecution}
+            onClick={handleExecuteQuery}
             disabled={isLoading}
           >
-            {isLoading ? (
-              <span className="loading" />
-            ) : (
-              'Run Query'
-            )}
+            {isLoading ? <LoadingSpinner /> : 'Run Query'}
           </button>
         </section>
 
@@ -351,7 +242,7 @@ function App() {
               </table>
               {loadingMore && (
                 <div className="loading-more">
-                  <span className="loading" />
+                  <LoadingSpinner />
                   <span>Loading more results...</span>
                 </div>
               )}
