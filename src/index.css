@@ -1,5 +1,6 @@
 /* Reset and base styles */
 :root {
+  /* Light theme variables */
   --primary: #4f46e5;
   --primary-dark: #4338ca;
   --primary-light: #818cf8;
@@ -7,16 +8,45 @@
   --background: #f3f4f8;
   --text: #1f2937;
   --text-light: #6b7280;
+  --text-secondary: #4b5563;
   --border: #e5e7eb;
+  --danger: #dc2626;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --primary: #818cf8;
+  --primary-dark: #6366f1;
+  --primary-light: #a5b4fc;
+  --surface: #1e1e2e;
+  --background: #141424;
+  --text: #e2e8f0;
+  --text-light: #94a3b8;
+  --text-secondary: #cbd5e1;
+  --border: #2d3748;
+  --danger: #ef4444;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2);
+  
+  /* Custom scrollbar for dark theme */
+  scrollbar-color: var(--border) var(--background);
+}
+
+/* Ensure proper contrast for placeholder text */
+[data-theme="dark"] ::placeholder {
+  color: var(--text-light);
+  opacity: 0.7;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 body {
@@ -111,6 +141,7 @@ body {
   resize: vertical;
   margin-bottom: 1.5rem;
   color: var(--text);
+  background-color: var(--surface); /* Explicitly set background color */
   transition: all 0.2s ease;
 }
 
@@ -252,6 +283,7 @@ body {
   border-radius: 4px;
   font-size: 0.85rem;
   background-color: var(--surface);
+  color: var(--text);
 }
 
 .filter-input:focus {
@@ -474,4 +506,36 @@ body {
 .remove-history-item:hover {
   background-color: rgba(0, 0, 0, 0.05);
   color: var(--danger);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: background-color 0.2s;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.theme-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Make sure all input elements properly respect the theme */
+input, select, textarea {
+  color: var(--text);
+  background-color: var(--surface);
 }
