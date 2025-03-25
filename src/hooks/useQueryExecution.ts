@@ -34,7 +34,7 @@ export function useQueryExecution() {
     
     const startTime = performance.now();
 
-    // Simulate query execution
+   
     await new Promise(resolve => setTimeout(resolve, 500));
 
     const query = sampleQueries.find(q => q.id === selectedQuery);
@@ -47,7 +47,7 @@ export function useQueryExecution() {
     }
   }, [selectedQuery, queryText]);
 
-  // New reset function
+
   const resetQuery = useCallback(() => {
     const query = sampleQueries.find(q => q.id === selectedQuery);
     if (query) {
@@ -66,7 +66,7 @@ export function useQueryExecution() {
     setQueryText,
     handleQueryChange,
     executeQuery,
-    resetQuery,  // Add this function to the return object
+    resetQuery,
     ...executionState
   };
 }

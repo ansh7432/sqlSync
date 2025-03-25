@@ -10,11 +10,11 @@ export function useTableFilters(results: QueryResult | null) {
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Apply filters to results
+
   useEffect(() => {
     if (!results) return;
     
-    // If no filters are applied, use original results
+
     if (Object.keys(filters).length === 0 || Object.values(filters).every(v => v === '')) {
       setFilteredResults(results.rows);
       setVisibleRows(results.rows.slice(0, ITEMS_PER_PAGE));
@@ -22,7 +22,7 @@ export function useTableFilters(results: QueryResult | null) {
       return;
     }
 
-    // Apply all active filters
+
     const filtered = results.rows.filter(row => {
       return Object.entries(filters).every(([column, filterValue]) => {
         if (!filterValue) return true;

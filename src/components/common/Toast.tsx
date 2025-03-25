@@ -10,7 +10,7 @@ export interface ToastProps {
 }
 
 export function Toast({ message, type, visible, onClose, duration = 5000 }: ToastProps) {
-  // Auto-close toast after duration
+    
   useEffect(() => {
     if (visible) {
       const timer = setTimeout(() => {
