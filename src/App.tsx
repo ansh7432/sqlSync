@@ -1,10 +1,18 @@
 import * as React from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Database, Timer, Filter } from 'lucide-react';
+import { Database, Timer, Filter, Clock, X } from 'lucide-react';
 import { sampleQueries } from './data/queries';
 import { formatNumber } from './utils/format';
 
 const ITEMS_PER_PAGE = 10;
+
+// Define interface for history items
+interface HistoryItem {
+  id: string;
+  query: string;
+  timestamp: number;
+  name?: string;
+}
 
 function App() {
   const [selectedQuery, setSelectedQuery] = useState(sampleQueries[0].id);
@@ -17,7 +25,41 @@ function App() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [filteredResults, setFilteredResults] = useState<any[] | null>(null);
+  const [queryHistory, setQueryHistory] = useState<HistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const observerTarget = useRef(null);
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  // Load query history from localStorage on initial load
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('queryHistory');
+    if (savedHistory) {
+      try {
+        setQueryHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error('Failed to parse query history', e);
+      }
+    }
+  }, []);
+
+  // Save query history to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
+  }, [queryHistory]);
+
+  // Close history panel when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (historyRef.current && !historyRef.current.contains(event.target as Node)) {
+        setShowHistory(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [historyRef]);
 
   // Apply filters to results
   useEffect(() => {
@@ -93,9 +135,24 @@ function App() {
   };
 
   const handleQueryExecution = useCallback(async () => {
+    if (!queryText.trim()) return;
+    
     setIsLoading(true);
     setFilters({});
     const startTime = performance.now();
+
+    // Add to history
+    const historyItem: HistoryItem = {
+      id: Date.now().toString(),
+      query: queryText,
+      timestamp: Date.now(),
+      name: sampleQueries.find(q => q.id === selectedQuery)?.name
+    };
+    
+    // Only add to history if it's a new query
+    if (!queryHistory.some(item => item.query === queryText)) {
+      setQueryHistory(prev => [historyItem, ...prev].slice(0, 50)); // Keep only the 50 most recent queries
+    }
 
     // Simulate query execution
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -110,13 +167,39 @@ function App() {
     }
 
     setIsLoading(false);
-  }, [selectedQuery]);
+  }, [selectedQuery, queryText, queryHistory]);
 
   const handleFilterChange = (column: string, value: string) => {
     setFilters(prev => ({
       ...prev,
       [column]: value
     }));
+  };
+
+  const loadHistoryItem = (historyItem: HistoryItem) => {
+    setQueryText(historyItem.query);
+    setShowHistory(false);
+
+    // Find if the query matches a predefined sample query
+    const matchingSampleQuery = sampleQueries.find(q => q.query === historyItem.query);
+    if (matchingSampleQuery) {
+      setSelectedQuery(matchingSampleQuery.id);
+    } else {
+      // If no matching sample query, use a custom ID
+      setSelectedQuery('custom');
+    }
+  };
+
+  const removeHistoryItem = (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    setQueryHistory(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  const clearHistory = () => {
+    if (window.confirm('Are you sure you want to clear all query history?')) {
+      setQueryHistory([]);
+      setShowHistory(false);
+    }
   };
 
   return (
@@ -142,6 +225,58 @@ function App() {
                 </option>
               ))}
             </select>
+            
+            <div className="history-container">
+              <button 
+                className="history-button"
+                onClick={() => setShowHistory(!showHistory)}
+                title="Query History"
+              >
+                <Clock size={18} />
+                <span>History</span>
+              </button>
+              
+              {showHistory && (
+                <div className="history-panel" ref={historyRef}>
+                  <div className="history-header">
+                    <h3>Query History</h3>
+                    <button className="clear-history" onClick={clearHistory}>
+                      Clear All
+                    </button>
+                  </div>
+                  
+                  {queryHistory.length === 0 ? (
+                    <div className="no-history">No history yet</div>
+                  ) : (
+                    <ul className="history-list">
+                      {queryHistory.map(item => (
+                        <li key={item.id} onClick={() => loadHistoryItem(item)}>
+                          <div className="history-item">
+                            <div className="history-item-name">
+                              {item.name || 'Custom Query'}
+                            </div>
+                            <div className="history-item-time">
+                              {new Date(item.timestamp).toLocaleString()}
+                            </div>
+                            <div className="history-item-query">
+                              {item.query.substring(0, 100)}
+                              {item.query.length > 100 ? '...' : ''}
+                            </div>
+                            <button 
+                              className="remove-history-item"
+                              onClick={(e) => removeHistoryItem(e, item.id)}
+                              title="Remove from history"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <textarea
