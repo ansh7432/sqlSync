@@ -5,7 +5,7 @@ export function useQueryHistory() {
   const [queryHistory, setQueryHistory] = useState<HistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
-  // Load query history from localStorage on initial load
+
   useEffect(() => {
     const savedHistory = localStorage.getItem('queryHistory');
     if (savedHistory) {
@@ -17,7 +17,7 @@ export function useQueryHistory() {
     }
   }, []);
 
-  // Save query history to localStorage when it changes
+
   useEffect(() => {
     localStorage.setItem('queryHistory', JSON.stringify(queryHistory));
   }, [queryHistory]);
@@ -28,7 +28,7 @@ export function useQueryHistory() {
       ...historyItem
     };
     
-    // Only add to history if it's a new query
+ 
     if (!queryHistory.some(item => item.query === newItem.query)) {
       setQueryHistory(prev => [newItem, ...prev].slice(0, 50)); // Keep only the 50 most recent queries
     }

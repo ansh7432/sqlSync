@@ -82,8 +82,7 @@ function App() {
   }, [loadMoreRows, filteredResults?.length, visibleRows.length]);
 
   // Handle query execution and update history
-  const handleExecuteQuery = async () => {
-    // Validate query
+  const handleExecuteQuery = async () => {   
     if (!queryText.trim()) {
       showToast('Please enter a SQL query before executing', 'warning');
       return;
@@ -91,18 +90,16 @@ function App() {
     
     await executeQuery();
     
-    // Add to history
+
     addToHistory({
       query: queryText,
       timestamp: Date.now(),
       name: sampleQueries.find(q => q.id === selectedQuery)?.name
     });
     
-    // Reset filters
     resetFilters();
   };
 
-  // Handle query reset
   const handleReset = () => {
     resetQuery();
     resetFilters();
@@ -112,12 +109,11 @@ function App() {
     setQueryText(query);
     setShowHistory(false);
 
-    // Find if the query matches a predefined sample query
+
     const matchingSampleQuery = sampleQueries.find(q => q.query === query);
     if (matchingSampleQuery) {
       handleQueryChange(matchingSampleQuery.id);
     } else {
-      // If no matching sample query, use a custom ID
       handleQueryChange('custom');
     }
   };
@@ -127,7 +123,6 @@ function App() {
       <ThemeToggle />
       <Header />
       
-      {/* Toast container */}
       <div className="toast-container">
         <Toast
           message={toast.message}

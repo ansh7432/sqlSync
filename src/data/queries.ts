@@ -11,14 +11,14 @@ export interface Query {
   results: QueryResult;
 }
 
-// Generate 500 rows of sample data for each query
+
 const generateLargeDataset = (count: number, template: Record<string, any>[]): Record<string, any>[] => {
   const result = [];
   for (let i = 0; i < count; i++) {
     const baseRow = template[i % template.length];
     result.push({
       ...baseRow,
-      id: i + 1, // Add unique identifier
+      id: i + 1, 
     });
   }
   return result;
