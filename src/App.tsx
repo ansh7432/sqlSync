@@ -3,7 +3,7 @@ import { ThemeToggle } from './components/common/ThemeToggle';
 import { Header } from './components/layout/Header';
 import { QuerySelector } from './components/query/QuerySelector';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
-import { Filter, Timer, Clock, X } from 'lucide-react';
+import { Filter, Timer, Clock, X, RefreshCw } from 'lucide-react';
 import { useQueryExecution } from './hooks/useQueryExecution';
 import { useQueryHistory } from './hooks/useQueryHistory';
 import { useTableFilters } from './hooks/useTableFilters';
@@ -16,7 +16,8 @@ function App() {
     queryText, 
     setQueryText, 
     handleQueryChange, 
-    executeQuery, 
+    executeQuery,
+    resetQuery, 
     isLoading, 
     results, 
     executionTime 
@@ -88,6 +89,12 @@ function App() {
     });
     
     // Reset filters
+    resetFilters();
+  };
+
+  // Handle query reset
+  const handleReset = () => {
+    resetQuery();
     resetFilters();
   };
 
@@ -181,13 +188,24 @@ function App() {
             placeholder="Enter your SQL query here..."
           />
 
-          <button 
-            className="run-button"
-            onClick={handleExecuteQuery}
-            disabled={isLoading}
-          >
-            {isLoading ? <LoadingSpinner /> : 'Run Query'}
-          </button>
+          <div className="button-group">
+            <button 
+              className="reset-button"
+              onClick={handleReset}
+              title="Reset query and results"
+            >
+              <RefreshCw size={18} />
+              Reset
+            </button>
+            
+            <button 
+              className="run-button"
+              onClick={handleExecuteQuery}
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingSpinner /> : 'Run Query'}
+            </button>
+          </div>
         </section>
 
         {results && (

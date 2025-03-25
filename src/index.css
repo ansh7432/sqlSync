@@ -539,3 +539,41 @@ input, select, textarea {
   color: var(--text);
   background-color: var(--surface);
 }
+
+/* Add these styles for the reset button and button group */
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.reset-button {
+  background-color: var(--background);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reset-button:hover {
+  background-color: var(--border);
+  transform: translateY(-1px);
+}
+
+.reset-button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 576px) {
+  .button-group {
+    flex-direction: column;
+  }
+}
