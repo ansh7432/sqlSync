@@ -29,7 +29,7 @@ A web-based application that allows users to run SQL queries and view results in
 ## Installation
 
 1. Clone the repository
-   ``` git clone https://github.com/yourusername/sql-query-editor.git ```
+   ``` git clone https://github.com/yourusername/sqlSync.git ```
    ``` cd sql-query-editor ```
    
 3. Install dependencies
