@@ -2,9 +2,9 @@
 
 A web-based application that allows users to run SQL queries and view results instantly. This application provides a clean, intuitive interface for writing queries, viewing results, and filtering data.
 
-![image](https://github.com/user-attachments/assets/c609b6ea-ab5c-475d-8ca3-99b610596c16)
+![image](https://github.com/user-attachments/assets/ed9dbd27-3302-4d55-af29-357ed8f08bee)
 
-<!-- Replace with actual screenshot when available -->
+
 
 ## 🚀 Features
 
@@ -18,7 +18,7 @@ A web-based application that allows users to run SQL queries and view results in
 - **Responsive Design:** Works on desktop and mobile devices
 - **Warning Notifications:** Toast messages for validation issues
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - **Framework:** React with TypeScript
 - **State Management:** React Hooks and Context API
