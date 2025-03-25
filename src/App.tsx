@@ -3,10 +3,12 @@ import { ThemeToggle } from './components/common/ThemeToggle';
 import { Header } from './components/layout/Header';
 import { QuerySelector } from './components/query/QuerySelector';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
-import { Filter, Timer, Clock, X } from 'lucide-react';
+import { Toast } from './components/common/Toast';
+import { Filter, Timer, Clock, X, RefreshCw } from 'lucide-react';
 import { useQueryExecution } from './hooks/useQueryExecution';
 import { useQueryHistory } from './hooks/useQueryHistory';
 import { useTableFilters } from './hooks/useTableFilters';
+import { useToast } from './hooks/useToast';
 import { formatNumber } from './utils/format';
 import { sampleQueries } from './data/queries';
 
@@ -16,7 +18,8 @@ function App() {
     queryText, 
     setQueryText, 
     handleQueryChange, 
-    executeQuery, 
+    executeQuery,
+    resetQuery, 
     isLoading, 
     results, 
     executionTime 
@@ -40,6 +43,8 @@ function App() {
     loadMoreRows,
     resetFilters
   } = useTableFilters(results);
+  
+  const { toast, showToast, hideToast } = useToast();
   
   const observerTarget = useRef(null);
   const historyRef = useRef<HTMLDivElement>(null);
@@ -78,6 +83,12 @@ function App() {
 
   // Handle query execution and update history
   const handleExecuteQuery = async () => {
+    // Validate query
+    if (!queryText.trim()) {
+      showToast('Please enter a SQL query before executing', 'warning');
+      return;
+    }
+    
     await executeQuery();
     
     // Add to history
@@ -88,6 +99,12 @@ function App() {
     });
     
     // Reset filters
+    resetFilters();
+  };
+
+  // Handle query reset
+  const handleReset = () => {
+    resetQuery();
     resetFilters();
   };
 
@@ -109,6 +126,16 @@ function App() {
     <div className="app">
       <ThemeToggle />
       <Header />
+      
+      {/* Toast container */}
+      <div className="toast-container">
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          visible={toast.visible}
+          onClose={hideToast}
+        />
+      </div>
 
       <main>
         <section className="query-section">
@@ -181,13 +208,24 @@ function App() {
             placeholder="Enter your SQL query here..."
           />
 
-          <button 
-            className="run-button"
-            onClick={handleExecuteQuery}
-            disabled={isLoading}
-          >
-            {isLoading ? <LoadingSpinner /> : 'Run Query'}
-          </button>
+          <div className="button-group">
+            <button 
+              className="reset-button"
+              onClick={handleReset}
+              title="Reset query and results"
+            >
+              <RefreshCw size={18} />
+              Reset
+            </button>
+            
+            <button 
+              className="run-button"
+              onClick={handleExecuteQuery}
+              disabled={isLoading}
+            >
+              {isLoading ? <LoadingSpinner /> : 'Run Query'}
+            </button>
+          </div>
         </section>
 
         {results && (

@@ -47,12 +47,26 @@ export function useQueryExecution() {
     }
   }, [selectedQuery, queryText]);
 
+  // New reset function
+  const resetQuery = useCallback(() => {
+    const query = sampleQueries.find(q => q.id === selectedQuery);
+    if (query) {
+      setQueryText(query.query);
+      setExecutionState({
+        isLoading: false,
+        results: null,
+        executionTime: 0
+      });
+    }
+  }, [selectedQuery]);
+
   return {
     selectedQuery,
     queryText,
     setQueryText,
     handleQueryChange,
     executeQuery,
+    resetQuery,  // Add this function to the return object
     ...executionState
   };
 }
