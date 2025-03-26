@@ -4,7 +4,8 @@ A web-based application that allows users to run SQL queries and view results in
 
 ![image](https://github.com/user-attachments/assets/ed9dbd27-3302-4d55-af29-357ed8f08bee)
 
-
+## Project Walkthrough :
+https://drive.google.com/file/d/1JItBNgbRPbIBiGM0ES8LWvwmhjrcpETn/view?usp=sharing
 
 ## 🚀 Features
 
