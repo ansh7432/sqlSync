@@ -4,12 +4,12 @@ import { Header } from './components/layout/Header';
 import { QuerySelector } from './components/query/QuerySelector';
 import { LoadingSpinner } from './components/common/LoadingSpinner';
 import { Toast } from './components/common/Toast';
-import { Filter, Timer, Clock, X, RefreshCw } from 'lucide-react';
+import { Filter, Timer, Clock, X, RefreshCw, Download } from 'lucide-react';
 import { useQueryExecution } from './hooks/useQueryExecution';
 import { useQueryHistory } from './hooks/useQueryHistory';
 import { useTableFilters } from './hooks/useTableFilters';
 import { useToast } from './hooks/useToast';
-import { formatNumber } from './utils/format';
+import { formatNumber, convertToCSV, downloadCSV } from './utils/format';
 import { sampleQueries } from './data/queries';
 
 function App() {
@@ -79,7 +79,7 @@ function App() {
     }
 
     return () => observer.disconnect();
-  }, [loadMoreRows, filteredResults?.length, visibleRows.length]);
+  }, [loadMoreRows, filteredResults, visibleRows.length]);
 
   // Handle query execution and update history
   const handleExecuteQuery = async () => {   
@@ -116,6 +116,24 @@ function App() {
     } else {
       handleQueryChange('custom');
     }
+  };
+
+  const handleDownloadCSV = () => {
+    if (!results) return;
+    
+  
+    const dataToExport = filteredResults || results.rows;
+    
+  
+    const csvContent = convertToCSV(results.columns, dataToExport);
+    
+  
+    const queryName = sampleQueries.find(q => q.id === selectedQuery)?.name || 'custom-query';
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filename = `${queryName.toLowerCase().replace(/\s+/g, '-')}-${timestamp}.csv`;
+    
+  
+    downloadCSV(csvContent, filename);
   };
 
   return (
@@ -238,6 +256,14 @@ function App() {
                     Showing {filteredResults.length} of {results.rows.length}
                   </span>
                 )}
+                <button 
+                  className="download-button"
+                  onClick={handleDownloadCSV}
+                  title="Download as CSV"
+                >
+                  <Download size={18} />
+                  <span>CSV</span>
+                </button>
               </div>
             </div>
 

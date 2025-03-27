@@ -509,6 +509,7 @@ body::before {
 .results-info {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1.25rem;
   font-size: 0.95rem;
   color: var(--text-light);
@@ -795,7 +796,7 @@ body::before {
 
 .history-item-time {
   font-size: 0.75rem;
-  color: var(--text-light);
+  color: var (--text-light);
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -1198,9 +1199,6 @@ body::before {
   }
 }
 
-/* Add these media queries at the end of your CSS file */
-
-/* Responsive adjustments */
 @media screen and (max-width: 768px) {
   .app {
     padding: 1.5rem 1rem;
@@ -1235,7 +1233,7 @@ body::before {
   }
   
   .theme-toggle {
-    position: absolute; /* Changed from fixed to absolute */
+    position: absolute;
     top: 1rem;
     right: 1rem;
     width: 40px;
@@ -1243,11 +1241,11 @@ body::before {
   }
   
   .history-container {
-    position: static; /* Make static so panel can be full width */
+    position: static;
   }
   
   .history-panel {
-    position: fixed; /* Changed to fixed */
+    position: fixed; 
     top: auto;
     bottom: 0;
     left: 0;
@@ -1308,11 +1306,11 @@ body::before {
     align-items: center;
     justify-content: center;
     padding: 0 0.5rem;
-    pointer-events: none; /* Allow clicks to pass through container */
+    pointer-events: none;
   }
   
   .toast {
-    pointer-events: auto; /* Restore pointer events on actual toast */
+    pointer-events: auto;
   }
   
   .query-editor {
@@ -1336,4 +1334,41 @@ body::before {
     border-width: 1px;
     padding: 1.25rem;
   }
+  
+  .download-button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .results-info {
+    gap: 0.75rem;
+  }
+}
+
+/* Add this new button style */
+
+.download-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--secondary-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.2px;
+}
+
+.download-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md), 0 0 15px rgba(114, 9, 183, 0.3);
+}
+
+.download-button:active {
+  transform: translateY(0);
 }
